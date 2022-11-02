@@ -25,12 +25,12 @@ class TreeNode {
 
         TreeNode(T dataIn) : data(dataIn), leftChild(nullptr), rightChild(nullptr), parent(nullptr) {}
 
-        void setLeftChild(TreeNode* child) {
+        void setLeftChild(TreeNode<T>* child) {
             leftChild.reset(child);
             child -> parent = this;
         }
 
-        void setRightChild(TreeNode* child) {
+        void setRightChild(TreeNode<T>* child) {
             rightChild.reset(child);
             child -> parent = this;
         }
@@ -43,6 +43,17 @@ class TreeNode {
             if (rightChild) {
                 rightChild -> write(os);
             }
+        }
+
+        int maxDepth() {
+            int leftDepth = 0, rightDepth = 0;
+            if (leftChild) {
+                leftDepth = leftChild -> maxDepth();
+            }
+            if (rightChild) {
+                rightDepth = rightChild -> maxDepth()
+            }
+            return 1 + max(leftDepth, rightDepth);
         }
 };
 

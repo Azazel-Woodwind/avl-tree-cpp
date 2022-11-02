@@ -35,6 +35,10 @@ class BinarySearchTree {
             return *this;
         }
 
+        int maxDepth() {
+            return root -> maxDepth();
+        }
+
         void deleteTree(unique_ptr<TreeNode<T>> currentNode) {
             if (!currentNode) {
                 return;
@@ -43,6 +47,18 @@ class BinarySearchTree {
             deleteTree(currentNode -> leftChild);
             deleteTree(currentNode -> rightChild);
             currentNode.reset();
+        }
+
+        TreeNodeIterator<T> begin() {
+            TreeNode<T>* leftMost = root.get();
+            while (leftMost -> leftChild) {
+                leftMost = leftMost -> leftChild;
+            }
+            return TreeNodeIterator<T>(leftMost);
+        }
+
+        TreeNodeIterator<T> end() {
+            return nullptr;
         }
 
         void write(ostream& os) const {
