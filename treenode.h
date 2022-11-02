@@ -16,6 +16,37 @@ using std::pair;
 // TODO your code for the TreeNode class goes here:
 
 template<typename T>
+class TreeNode {
+    public:
+        T data;
+        unique_ptr<TreeNode<T>> leftChild;
+        unique_ptr<TreeNode<T>> rightChild;
+        TreeNode<T>* parent;
+
+        TreeNode(T dataIn) : data(dataIn), leftChild(nullptr), rightChild(nullptr), parent(nullptr) {}
+
+        void setLeftChild(TreeNode* child) {
+            leftChild.reset(child);
+            child -> parent = this;
+        }
+
+        void setRightChild(TreeNode* child) {
+            rightChild.reset(child);
+            child -> parent = this;
+        }
+
+        void write(ostream& os) const {
+            if (leftChild) {
+                leftChild -> write(os);
+            }
+            os << " " << data << " ";
+            if (rightChild) {
+                rightChild -> write(os);
+            }
+        }
+};
+
+template<typename T>
 class TreeNodeIterator {
     TreeNode<T>* current;
     public:
@@ -47,37 +78,6 @@ class TreeNodeIterator {
                 while (current -> leftChild) {
                     current = current -> leftChild;
                 }
-            }
-        }
-};
-
-template<typename T>
-class TreeNode {
-    public:
-        T data;
-        unique_ptr<TreeNode<T>> leftChild;
-        unique_ptr<TreeNode<T>> rightChild;
-        TreeNode<T>* parent;
-
-        TreeNode(T dataIn) : data(dataIn), leftChild(nullptr), rightChild(nullptr), parent(nullptr) {}
-
-        void setLeftChild(TreeNode* child) {
-            leftChild.reset(child);
-            child -> parent = this;
-        }
-
-        void setRightChild(TreeNode* child) {
-            rightChild.reset(child);
-            child -> parent = this;
-        }
-
-        void write(ostream& os) const {
-            if (leftChild) {
-                leftChild -> write(os);
-            }
-            os << " " << data << " ";
-            if (rightChild) {
-                rightChild -> write(os);
             }
         }
 };
