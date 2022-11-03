@@ -3,6 +3,12 @@
 
 #include "treenode.h"
 
+#include <algorithm>
+
+#include <iostream>
+using std::cout;
+using std::endl;
+
 // TODO your code goes here:
 
 template<typename T>
@@ -51,8 +57,8 @@ class BinarySearchTree {
 
         TreeNodeIterator<T> begin() {
             TreeNode<T>* leftMost = root.get();
-            while (leftMost -> leftChild) {
-                leftMost = leftMost -> leftChild;
+            while (leftMost && leftMost -> leftChild) {
+                leftMost = leftMost -> leftChild.get();
             }
             return TreeNodeIterator<T>(leftMost);
         }
@@ -66,7 +72,45 @@ class BinarySearchTree {
         }
 
         TreeNode<T>* insert(T data) {
-            return insertHelper(data, root.get());
+            TreeNode<T>* res = insertHelper(data, root.get());
+            if (!res || !res -> parent || !((res -> parent) -> parent)) {
+                return res;
+            }
+            int balanceFactor = res -> parent -> parent -> balanceFactor();
+            if (!(balanceFactor == 2 || balanceFactor == -2)) {
+                return res;
+            }
+            if (res -> parent -> data < res -> data && res -> parent -> parent -> data < res -> parent -> data) {
+                if (res -> parent -> parent == root.get()) {
+                    root.release();
+                    root.reset(res -> parent);
+                }
+                res -> parent -> parent -> rotateLeft();
+            }
+            else if (res -> data < res -> parent -> data && res -> parent -> data < res -> parent -> parent -> data) {
+                if (res -> parent -> parent == root.get()) {
+                    root.release();
+                    root.reset(res -> parent);
+                }
+                res -> parent -> parent -> rotateRight();
+            }
+            else if (res -> parent -> data < res -> data && res -> parent -> data < res -> parent -> parent -> data) {
+                if (res -> parent -> parent == root.get()) {
+                    root.release();
+                    root.reset(res);
+                }
+                res -> parent -> rotateLeft();
+                res -> parent -> rotateRight();
+            }
+            else {
+                if (res -> parent -> parent == root.get()) {
+                    root.release();
+                    root.reset(res);
+                }
+                res -> parent -> rotateRight();
+                res -> parent -> rotateLeft();
+            }
+            return res;
         }
 
         TreeNode<T>* insertHelper(T data, TreeNode<T>* currentNode) {
@@ -82,7 +126,7 @@ class BinarySearchTree {
                     currentNode -> setLeftChild(child);
                     return child;
                 }
-                insertHelper(data, (currentNode -> leftChild).get());
+                return insertHelper(data, (currentNode -> leftChild).get());
             }
             else if (currentNode -> data < data) {
                 if (!currentNode -> rightChild) {
@@ -90,7 +134,7 @@ class BinarySearchTree {
                     currentNode -> setRightChild(child);
                     return child;
                 }
-                insertHelper(data, (currentNode -> rightChild).get());
+                return insertHelper(data, (currentNode -> rightChild).get());
             }
             else {
                 return currentNode;

@@ -13,6 +13,9 @@ using std::unique_ptr;
 #include <utility>
 using std::pair;
 
+#include <algorithm>
+using std::max;
+
 // TODO your code for the TreeNode class goes here:
 
 template<typename T>
@@ -26,11 +29,13 @@ class TreeNode {
         TreeNode(T dataIn) : data(dataIn), leftChild(nullptr), rightChild(nullptr), parent(nullptr) {}
 
         void setLeftChild(TreeNode<T>* child) {
+            leftChild.release();
             leftChild.reset(child);
             child -> parent = this;
         }
 
         void setRightChild(TreeNode<T>* child) {
+            rightChild.release();
             rightChild.reset(child);
             child -> parent = this;
         }
@@ -51,9 +56,44 @@ class TreeNode {
                 leftDepth = leftChild -> maxDepth();
             }
             if (rightChild) {
-                rightDepth = rightChild -> maxDepth()
+                rightDepth = rightChild -> maxDepth();
             }
             return 1 + max(leftDepth, rightDepth);
+        }
+
+        int balanceFactor() {
+            int leftDepth = leftChild ? leftChild -> maxDepth() : 0;
+            int rightDepth = rightChild ? rightChild -> maxDepth() : 0;
+            return leftDepth - rightDepth;
+        }
+
+        void rotateLeft() {
+            if (parent) {
+                if (parent -> data < data) {
+                    parent -> setRightChild(rightChild.get());
+                }
+                else {
+                    parent -> setLeftChild(rightChild.get());
+                }
+            }
+            rightChild -> setLeftChild(this);
+            rightChild.release();
+        }
+
+        void rotateRight() {
+            leftChild -> parent = parent;
+
+            if (parent) {
+                if (parent -> data < data) {
+                    parent -> setRightChild(leftChild.get());
+                }
+                else {
+                    parent -> setLeftChild(leftChild.get());
+                }
+            }
+
+            leftChild -> setRightChild(this);
+            leftChild.release();
         }
 };
 
@@ -63,8 +103,8 @@ class TreeNodeIterator {
     public:
         TreeNodeIterator(TreeNode<T>* currentIn) : current(currentIn) {}
 
-        TreeNode<T>& operator*() {
-            return *current;
+        T& operator*() {
+            return current -> data;
         }
 
         bool operator==(const TreeNodeIterator<T>& other) {
@@ -78,16 +118,16 @@ class TreeNodeIterator {
         void operator++() {
             if ((!current -> leftChild) && !(current -> rightChild)) {
                 TreeNode<T>* parent = current -> parent;
-                while (parent && parent -> rightChild == current) {
+                while (parent && parent -> rightChild.get() == current) {
                     current = parent;
                     parent = current -> parent;
                 }
                 current = parent;
             }
             else {
-                current = current -> rightChuld;
+                current = current -> rightChild.get();
                 while (current -> leftChild) {
-                    current = current -> leftChild;
+                    current = current -> leftChild.get();
                 }
             }
         }
