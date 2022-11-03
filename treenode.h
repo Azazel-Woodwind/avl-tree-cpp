@@ -13,9 +13,6 @@ using std::unique_ptr;
 #include <utility>
 using std::pair;
 
-#include <algorithm>
-using std::max;
-
 // TODO your code for the TreeNode class goes here:
 
 template<typename T>
@@ -58,7 +55,10 @@ class TreeNode {
             if (rightChild) {
                 rightDepth = rightChild -> maxDepth();
             }
-            return 1 + max(leftDepth, rightDepth);
+            if (leftDepth > rightDepth) {
+                return 1 + leftDepth;
+            }
+            return 1 + rightDepth;
         }
 
         int balanceFactor() {
