@@ -118,6 +118,7 @@ class BinarySearchTree {
                 return newRoot;
             }
 
+
             if (data < currentNode -> data) {
                 if (!currentNode -> leftChild) {
                     TreeNode<T>* child = new TreeNode<T>(data);
