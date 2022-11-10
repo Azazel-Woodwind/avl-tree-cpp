@@ -3,10 +3,6 @@
 
 #include "treenode.h"
 
-#include <iostream>
-using std::cout;
-using std::endl;
-
 // TODO your code goes here:
 
 template<typename T>
