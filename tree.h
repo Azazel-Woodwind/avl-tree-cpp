@@ -7,7 +7,76 @@
 
 template<typename T>
 class BinarySearchTree {
-    unique_ptr<TreeNode<T>> root;
+    private:
+        unique_ptr<TreeNode<T>> root;
+
+        void copy(TreeNode<T>* currentNode, TreeNode<T>* otherNode) {
+            if (otherNode -> leftChild) {
+                currentNode -> setLeftChild(new TreeNode<T>(otherNode -> leftChild -> data));
+                copy(currentNode -> leftChild.get(), otherNode -> leftChild.get());
+            }
+            if (otherNode -> rightChild) {
+                currentNode -> setRightChild(new TreeNode<T>(otherNode -> rightChild -> data));
+                copy(currentNode -> rightChild.get(), otherNode -> rightChild.get());
+            }
+        }
+
+        void deleteTree(unique_ptr<TreeNode<T>>& currentNode) {
+            if (!currentNode) {
+                return;
+            }
+
+            deleteTree(currentNode -> leftChild);
+            deleteTree(currentNode -> rightChild);
+            currentNode.reset();
+        }
+
+        TreeNode<T>* insertHelper(T data, TreeNode<T>* currentNode) {
+            if (!currentNode) {
+                TreeNode<T>* newRoot = new TreeNode<T>(data);
+                root.reset(newRoot);
+                return newRoot;
+            }
+
+
+            if (data < currentNode -> data) {
+                if (!currentNode -> leftChild) {
+                    TreeNode<T>* child = new TreeNode<T>(data);
+                    currentNode -> setLeftChild(child);
+                    return child;
+                }
+                return insertHelper(data, (currentNode -> leftChild).get());
+            }
+            else if (currentNode -> data < data) {
+                if (!currentNode -> rightChild) {
+                    TreeNode<T>* child = new TreeNode<T>(data);
+                    currentNode -> setRightChild(child);
+                    return child;
+                }
+                return insertHelper(data, (currentNode -> rightChild).get());
+            }
+            else {
+                return currentNode;
+            }
+
+            return nullptr;
+        }
+
+        TreeNode<T>* findHelper(T data, TreeNode<T>* currentNode) {
+            if (!currentNode) {
+                return nullptr;
+            }
+
+            if (data < currentNode -> data) {
+                return findHelper(data, (currentNode -> leftChild).get());
+            }
+            else if (currentNode -> data < data) {
+                return findHelper(data, (currentNode -> rightChild).get());
+            }
+            else {
+                return currentNode;
+            }
+        }
 
     public:
         BinarySearchTree() {}
@@ -15,17 +84,6 @@ class BinarySearchTree {
         BinarySearchTree(const BinarySearchTree<T>& other) {
             root.reset(new TreeNode<T>(other.root -> data));
             copy(root.get(), other.root.get());
-        }
-
-        void copy(TreeNode<T>* currentNode, TreeNode<T>* otherNode) {
-            if (otherNode -> leftChild) {
-                currentNode -> setLeftChild(new TreeNode<T>(otherNode -> leftChild -> data));
-                copy(currentNode -> leftChild, otherNode -> leftChild);
-            }
-            if (otherNode -> rightChild) {
-                currentNode -> setRightChild(new TreeNode<T>(otherNode -> rightChild -> data));
-                copy(currentNode -> rightChild, otherNode -> rightChild);
-            }
         }
 
         BinarySearchTree<T>& operator=(const BinarySearchTree<T>& other) {
@@ -38,16 +96,7 @@ class BinarySearchTree {
         int maxDepth() {
             return root -> maxDepth();
         }
-
-        void deleteTree(unique_ptr<TreeNode<T>> currentNode) {
-            if (!currentNode) {
-                return;
-            }
-
-            deleteTree(currentNode -> leftChild);
-            deleteTree(currentNode -> rightChild);
-            currentNode.reset();
-        }
+    
 
         TreeNodeIterator<T> begin() {
             TreeNode<T>* leftMost = root.get();
@@ -58,7 +107,7 @@ class BinarySearchTree {
         }
 
         TreeNodeIterator<T> end() {
-            return nullptr;
+            return TreeNodeIterator<T>(nullptr);;
         }
 
         void write(ostream& os) const {
@@ -107,56 +156,10 @@ class BinarySearchTree {
             return res;
         }
 
-        TreeNode<T>* insertHelper(T data, TreeNode<T>* currentNode) {
-            if (!currentNode) {
-                TreeNode<T>* newRoot = new TreeNode<T>(data);
-                root.reset(newRoot);
-                return newRoot;
-            }
-
-
-            if (data < currentNode -> data) {
-                if (!currentNode -> leftChild) {
-                    TreeNode<T>* child = new TreeNode<T>(data);
-                    currentNode -> setLeftChild(child);
-                    return child;
-                }
-                return insertHelper(data, (currentNode -> leftChild).get());
-            }
-            else if (currentNode -> data < data) {
-                if (!currentNode -> rightChild) {
-                    TreeNode<T>* child = new TreeNode<T>(data);
-                    currentNode -> setRightChild(child);
-                    return child;
-                }
-                return insertHelper(data, (currentNode -> rightChild).get());
-            }
-            else {
-                return currentNode;
-            }
-
-            return nullptr;
-        }
-
         TreeNode<T>* find(T data) {
             return findHelper(data, root.get());
         }
 
-        TreeNode<T>* findHelper(T data, TreeNode<T>* currentNode) {
-            if (!currentNode) {
-                return nullptr;
-            }
-
-            if (data < currentNode -> data) {
-                return findHelper(data, (currentNode -> leftChild).get());
-            }
-            else if (currentNode -> data < data) {
-                return findHelper(data, (currentNode -> rightChild).get());
-            }
-            else {
-                return currentNode;
-            }
-        }
 };
 
 
